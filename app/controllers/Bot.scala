@@ -14,7 +14,7 @@ object Bot extends LilaController {
     WithMyBotGame(id, me) { pov =>
       RequireHttp11(req) {
         lila.game.GameRepo.withInitialFen(pov.game) map { wf =>
-          Ok.chunked(Env.bot.gameStateStream(wf))
+          Ok.chunked(Env.bot.gameStateStream(me, wf, pov.color))
         }
       }
     }
@@ -28,25 +28,34 @@ object Bot extends LilaController {
     }
   }
 
-  def command(cmd: String) = Scoped(_.Bot.Play) { _ => me =>
+  def command(cmd: String) = ScopedBody(_.Bot.Play) { implicit req => me =>
     cmd.split('/') match {
       case Array("account", "upgrade") =>
-        lila.user.UserRepo.setBot(me) inject jsonOkResult recover {
+        lila.user.UserRepo.setBot(me) >>- Env.user.lightUserApi.invalidate(me.id) inject jsonOkResult recover {
           case e: Exception => BadRequest(jsonError(e.getMessage))
+        }
+      case Array("game", id, "chat") =>
+        Env.bot.form.chat.bindFromRequest.fold(
+          err => BadRequest(errorsAsJson(err)).fuccess,
+          res => WithMyBotGame(id, me) { pov =>
+            Env.bot.player.chat(pov.gameId, me, res) inject jsonOkResult
+          }
+        )
+      case Array("game", id, "abort") =>
+        WithMyBotGame(id, me) { pov =>
+          Env.bot.player.abort(pov) inject jsonOkResult
         }
       case _ => notFoundJson("No such command")
     }
   }
 
   private def WithMyBotGame(anyId: String, me: lila.user.User)(f: lila.game.Pov => Fu[Result]) =
-    lila.user.UserRepo.isBot(me) flatMap {
-      case false => BadRequest(jsonError("This endpoint only works for bot accounts. See https://lichess.org/api#operation/botAccountUpgrade")).fuccess
-      case _ => Env.round.roundProxyGame(lila.game.Game takeGameId anyId) flatMap {
-        case None => NotFound(jsonError("No such game")).fuccess
-        case Some(game) => lila.game.Pov(game, me) match {
-          case None => NotFound(jsonError("Not your game")).fuccess
-          case Some(pov) => f(pov)
-        }
+    if (!me.isBot) BadRequest(jsonError("This endpoint only works for bot accounts. See https://lichess.org/api#operation/botAccountUpgrade")).fuccess
+    else Env.round.roundProxyGame(lila.game.Game takeGameId anyId) flatMap {
+      case None => NotFound(jsonError("No such game")).fuccess
+      case Some(game) => lila.game.Pov(game, me) match {
+        case None => NotFound(jsonError("Not your game")).fuccess
+        case Some(pov) => f(pov)
       }
     }
 }

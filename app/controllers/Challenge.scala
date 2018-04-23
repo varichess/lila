@@ -72,9 +72,12 @@ object Challenge extends LilaController {
         )
       }
     },
-    scoped = _ => me => env.api.byIdFor(id, me) flatMap {
-      _ ?? { env.api.accept(_, me.some) } map { res =>
-        res.isDefined ?? jsonOkResult
+    scoped = _ => me => env.api.activeByIdFor(id, me) flatMap {
+      _ ?? { env.api.accept(_, me.some) }
+    } flatMap { res =>
+      if (res.isDefined) jsonOkResult.fuccess
+      else Env.bot.player.rematchAccept(id, me) flatMap {
+        _.fold(jsonOkResult.fuccess, notFoundJson())
       }
     }
   )
@@ -101,8 +104,11 @@ object Challenge extends LilaController {
       if (isForMe(c)) env.api decline c
       else notFound
     },
-    scoped = _ => me => env.api.byIdFor(id, me) flatMap {
-      _.fold(notFoundJson()) { c => env.api.decline(c) inject jsonOkResult }
+    scoped = _ => me => env.api.activeByIdFor(id, me) flatMap {
+      case None => Env.bot.player.rematchDecline(id, me) flatMap {
+        _.fold(jsonOkResult.fuccess, notFoundJson())
+      }
+      case Some(c) => env.api.decline(c) inject jsonOkResult
     }
   )
 
@@ -142,7 +148,7 @@ object Challenge extends LilaController {
             case Some(d) => BadRequest(jsonError {
               lila.challenge.ChallengeDenied translated d
             }).fuccess
-            case _ => env.api.rematchOf(g, me) map {
+            case _ => env.api.sendRematchOf(g, me) map {
               _.fold(Ok, BadRequest(jsonError("Sorry, couldn't create the rematch.")))
             }
           }

@@ -19,9 +19,13 @@ case class AccessToken(
 
 object AccessToken {
 
-  case class Id(value: String) extends AnyVal
+  val idSize = 16
 
-  def makeId = Id(ornicar.scalalib.Random secureString 16)
+  case class Id(value: String) extends AnyVal {
+    def isPersonal = value.size == idSize
+  }
+
+  def makeId = Id(ornicar.scalalib.Random secureString idSize)
 
   case class ForAuth(userId: User.ID, expiresAt: DateTime, scopes: List[OAuthScope]) {
     def isExpired = expiresAt isBefore DateTime.now
@@ -43,6 +47,12 @@ object AccessToken {
   import lila.db.dsl._
   import BSON.BSONJodaDateTimeHandler
   import OAuthScope.scopeHandler
+
+  private[oauth] val forAuthProjection = $doc(
+    BSONFields.userId -> true,
+    BSONFields.expiresAt -> true,
+    BSONFields.scopes -> true
+  )
 
   private[oauth] implicit val accessTokenIdHandler = stringAnyValHandler[Id](_.value, Id.apply)
 

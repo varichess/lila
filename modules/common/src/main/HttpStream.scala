@@ -11,9 +11,16 @@ object HttpStream {
       Json.stringify(js) + "\n"
     }
 
+  val stringifyOrEmpty =
+    Enumeratee.map[Option[JsObject]].apply[String] {
+      _ ?? Json.stringify + "\n"
+    }
+
   def onComplete(stream: Option[ActorRef], system: ActorSystem) =
     stream foreach { actor =>
       system.lilaBus.unsubscribe(actor)
       actor ! PoisonPill
     }
+
+  case object SetOnline
 }

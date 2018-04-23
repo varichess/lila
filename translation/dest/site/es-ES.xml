@@ -211,6 +211,8 @@
   <string name="thisGameIsRated">Esta partida es por puntos</string>
   <string name="rematch">Revancha</string>
   <string name="rematchOfferSent">Oferta de revancha enviada</string>
+  <string name="rematchOfferSentWhite">Las blancas ofrecen jugar de nuevo</string>
+  <string name="rematchOfferSentBlack">Las negras ofrecen jugar de nuevo</string>
   <string name="rematchOfferAccepted">Oferta de revancha aceptada</string>
   <string name="rematchOfferCanceled">Oferta de revancha cancelada</string>
   <string name="rematchOfferDeclined">Oferta de revancha rechazada</string>
@@ -388,6 +390,7 @@
   <string name="conditionOfEntry">Condiciones de entrada:</string>
   <string name="advancedSettings">Configuración avanzada</string>
   <string name="safeTournamentName">Escoge un nombre muy seguro para el torneo.</string>
+  <string name="inappropriateNameWarning">Cualquier comportamiento inapropiado podría conllevar al cierre de su cuenta.</string>
   <string name="emptyTournamentName">Deje en blanco para nombrar el torneo con un Gran Maestro al azar.</string>
   <string name="recommendNotTouching">Se recomienda dejar como está.</string>
   <string name="fewerPlayers">Si establece condiciones de entrada, el torneo tendrá menos jugadores.</string>
@@ -836,7 +839,7 @@
   <string name="noConditionalPremoves">Sin movimientos anticipados condicionales</string>
   <string name="playX">Jugar %s</string>
   <plurals name="andSaveNbPremoveLines">
-    <item quantity="one">y ahorra %s variante de premovimientos</item>
+    <item quantity="one">y almacene %s líneas de premovimientos</item>
     <item quantity="other">y ahorra %s variantes de premovimientos</item>
   </plurals>
 </resources>

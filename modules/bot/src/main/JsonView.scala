@@ -15,7 +15,10 @@ final class BotJsonView(
 
   def gameFull(wf: Game.WithInitialFen): Fu[JsObject] =
     gameState(wf) map { state =>
-      gameImmutable(wf) + ("state" -> state)
+      gameImmutable(wf) ++ Json.obj(
+        "type" -> "gameFull",
+        "state" -> state
+      )
     }
 
   def gameImmutable(wf: Game.WithInitialFen): JsObject = {
@@ -23,8 +26,11 @@ final class BotJsonView(
     Json.obj(
       "id" -> game.id,
       "variant" -> game.variant,
+      "clock" -> game.clock.map(_.config),
       "speed" -> game.speed.key,
-      "perf" -> lila.game.PerfPicker.key(game),
+      "perf" -> game.perfType.map { p =>
+        Json.obj("name" -> p.name)
+      },
       "rated" -> game.rated,
       "createdAt" -> game.createdAt,
       "white" -> playerJson(game.whitePov),
@@ -38,6 +44,7 @@ final class BotJsonView(
     import wf._
     chess.format.UciDump(game.pgnMoves, fen.map(_.value), game.variant).future map { uciMoves =>
       Json.obj(
+        "type" -> "gameState",
         "moves" -> uciMoves.mkString(" "),
         "wtime" -> millisOf(game.whitePov),
         "btime" -> millisOf(game.blackPov),
@@ -47,6 +54,13 @@ final class BotJsonView(
         .add("rematch" -> game.next)
     }
   }
+
+  def chatLine(username: String, text: String, player: Boolean) = Json.obj(
+    "type" -> "chatLine",
+    "room" -> player.fold("player", "spectator"),
+    "username" -> username,
+    "text" -> text
+  )
 
   private def playerJson(pov: Pov) = {
     val light = pov.player.userId flatMap lightUserApi.sync
@@ -61,4 +75,11 @@ final class BotJsonView(
 
   private def millisOf(pov: Pov): Int =
     pov.game.clock.fold(Int.MaxValue)(_.remainingTime(pov.color).millis.toInt)
+
+  private implicit val clockConfigWriter: OWrites[chess.Clock.Config] = OWrites { c =>
+    Json.obj(
+      "initial" -> c.limit.millis,
+      "increment" -> c.increment.millis
+    )
+  }
 }

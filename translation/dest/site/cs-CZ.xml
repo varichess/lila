@@ -229,6 +229,8 @@
   <string name="thisGameIsRated">Tato hra se započítává do hodnocení</string>
   <string name="rematch">Odveta</string>
   <string name="rematchOfferSent">Nabídka odvety byla odeslána</string>
+  <string name="rematchOfferSentWhite">Bílý nabízí odvetu</string>
+  <string name="rematchOfferSentBlack">Černý nabízí odvetu</string>
   <string name="rematchOfferAccepted">Nabídka odvety byla přijata</string>
   <string name="rematchOfferCanceled">Nabídka odvety byla zrušena</string>
   <string name="rematchOfferDeclined">Nabídka odvety byla odmítnuta</string>
@@ -435,6 +437,14 @@
   <string name="standing">Umístění</string>
   <string name="createANewTournament">Vytvořit turnaj</string>
   <string name="tournamentCalendar">Kalendář turnajů</string>
+  <string name="conditionOfEntry">Podmínka vstupu:</string>
+  <string name="advancedSettings">Pokročilá nastavení</string>
+  <string name="safeTournamentName">Vyberte \"bezpečné\" jméno turnaje.</string>
+  <string name="inappropriateNameWarning">Cokoli i mírně nevhodného může způsobit uzavření vašeho účtu.</string>
+  <string name="emptyTournamentName">Pokud jméno turnaje nevyplníte, bude pojmenován po náhodném velmistrovi.</string>
+  <string name="recommendNotTouching">Doporučujeme tato nastavení neměnit.</string>
+  <string name="fewerPlayers">Pokud nastavíte podmínky vstupu, zúčastní se vašeho turnaje méně hráčů.</string>
+  <string name="showAdvancedSettings">Zobrazit pokročilá nastavení</string>
   <string name="join">Přidat se</string>
   <string name="withdraw">Odhlásit se</string>
   <string name="points">Body</string>

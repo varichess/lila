@@ -245,13 +245,16 @@ package round {
       opponentUserId: String
   )
   case class NbRounds(nb: Int)
-  case class Abort(gameId: String, byColor: String)
   case class Berserk(gameId: String, userId: String)
   case class IsOnGame(color: chess.Color)
   sealed trait SocketEvent
   case class TourStanding(json: JsArray)
   case class FishnetPlay(uci: Uci, currentFen: chess.format.FEN)
   case class BotPlay(playerId: String, uci: Uci, promise: Option[scala.concurrent.Promise[Unit]] = None)
+  case class RematchOffer(gameId: String)
+  case class RematchYes(playerId: String)
+  case class RematchNo(playerId: String)
+  case class Abort(playerId: String)
 }
 
 package evaluation {
